@@ -1,16 +1,21 @@
 package com.lewyonq.so_cards_app.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 public class Deck {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +35,7 @@ public class Deck {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @ToString.Exclude
     @OneToMany(
             mappedBy = "deck",
             cascade = CascadeType.ALL,
@@ -46,5 +52,18 @@ public class Deck {
     public void removeCard(Card card) {
         cards.remove(card);
         card.setDeck(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!(o instanceof Deck deck)) return false;
+        return getId() != null && Objects.equals(id, deck.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? Objects.hash(id) : getClass().hashCode();
     }
 }
