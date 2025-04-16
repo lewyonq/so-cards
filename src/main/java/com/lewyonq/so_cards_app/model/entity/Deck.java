@@ -1,9 +1,7 @@
 package com.lewyonq.so_cards_app.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,6 +14,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Deck {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
