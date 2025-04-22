@@ -1,6 +1,6 @@
 package com.lewyonq.so_cards_app.deck.dto;
 
-import com.lewyonq.so_cards_app.card.dto.CardBasicDto;
+import com.lewyonq.so_cards_app.card.dto.CardResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,5 +15,5 @@ public class DeckDetailDto {
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<CardBasicDto> cardDtos;
+    private List<CardResponseDto> cardDtos;
 }

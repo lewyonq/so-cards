@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CardBasicDto {
+public class CardResponseDto {
     private Long id;
     private String question;
     private String answer;

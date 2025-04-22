@@ -1,6 +1,6 @@
 package com.lewyonq.so_cards_app.deck;
 
-import com.lewyonq.so_cards_app.card.dto.CardBasicDto;
+import com.lewyonq.so_cards_app.card.dto.CardResponseDto;
 import com.lewyonq.so_cards_app.deck.dto.DeckDetailDto;
 import com.lewyonq.so_cards_app.deck.dto.DeckRequestDto;
 import com.lewyonq.so_cards_app.deck.dto.DeckResponseDto;
@@ -121,12 +121,12 @@ class DeckMapperTest {
         assertNotNull(dto.getCardDtos());
         assertEquals(2, dto.getCardDtos().size());
 
-        CardBasicDto actualCardDto1 = dto.getCardDtos().getFirst();
+        CardResponseDto actualCardDto1 = dto.getCardDtos().getFirst();
         assertEquals(testCard1.getId(), actualCardDto1.getId());
         assertEquals(testCard1.getQuestion(), actualCardDto1.getQuestion());
         assertEquals(testCard1.getAnswer(), actualCardDto1.getAnswer());
 
-        CardBasicDto actualCardDto2 = dto.getCardDtos().get(1);
+        CardResponseDto actualCardDto2 = dto.getCardDtos().get(1);
         assertEquals(testCard2.getId(), actualCardDto2.getId());
         assertEquals(testCard2.getQuestion(), actualCardDto2.getQuestion());
         assertEquals(testCard2.getAnswer(), actualCardDto2.getAnswer());
