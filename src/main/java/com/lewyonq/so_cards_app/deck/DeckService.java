@@ -62,9 +62,8 @@ public class DeckService {
 
     @Transactional
     public void deleteDeck(Long id) {
-        Deck deck = findDeckById(id);
         log.debug("Attempting to delete deck with id: {}", id);
-        deckRepository.delete(deck);
+        deckRepository.deleteById(id);
         log.info("Successfully deleted deck with ID: {}", id);
     }
 

@@ -102,8 +102,8 @@ class DeckServiceTest {
 
         verify(deckRepository).findAll();
         verify(deckMapper).toResponseDto(decks.getFirst());
-        assertEquals(result.getFirst().getName(), decks.getFirst().getName());
-        assertEquals(result.getFirst().getDescription(), decks.getFirst().getDescription());
+        assertEquals(decks.getFirst().getName(), result.getFirst().getName());
+        assertEquals(decks.getFirst().getDescription(), result.getFirst().getDescription());
     }
 
     @Test
@@ -182,9 +182,9 @@ class DeckServiceTest {
     @Test
     void deleteDeck_Success() {
         Long id = 1L;
-        when(deckRepository.findById(id)).thenReturn(Optional.of(deck));
+        doNothing().when(deckRepository).deleteById(id);
         deckService.deleteDeck(id);
 
-        verify(deckRepository).delete(deck);
+        verify(deckRepository).deleteById(id);
     }
 }

@@ -48,18 +48,6 @@ class DeckControllerTest {
         requestDto.setName("test name");
         requestDto.setDescription("test description");
 
-//        deck = Deck.builder()
-//                .id(1L)
-//                .name("test name")
-//                .description("test description")
-//                .build();
-//
-//        savedDeck = Deck.builder()
-//                .id(1L)
-//                .name("test name")
-//                .description("test description")
-//                .build();
-//
         responseDto = new DeckResponseDto();
         responseDto.setId(1L);
         responseDto.setName("test name");
@@ -71,18 +59,17 @@ class DeckControllerTest {
         deckDetailDto.setDescription("test description");
     }
 
-//    @Test
-//    void createDeck_success() throws Exception {
-//        when(deckService.createDeck(requestDto)).thenReturn(deckDetailDto);
-//        System.out.println("abcd" + deckDetailDto);
-//
-//        mockMvc.perform(post("/api/v1/deck")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(requestDto))
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isCreated())
-//                .andExpect(jsonPath("$.id").value(1L));
-//    }
+    @Test
+    void createDeck_success() throws Exception {
+        when(deckService.createDeck(any(DeckRequestDto.class))).thenReturn(deckDetailDto);
+
+        mockMvc.perform(post("/api/v1/deck")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L));
+    }
 
     @Test
     void getAllDecks_Success() throws Exception {
@@ -126,17 +113,6 @@ class DeckControllerTest {
                         .content(objectMapper.writeValueAsString(deckDetailDto)))
                 .andExpect(status().isOk());
     }
-
-//    @Test
-//    void updateDeck_Failure_ResourceNotFound() throws Exception {
-//        Long id = 2L;
-//        when(deckService.updateDeck(id, requestDto)).thenThrow(ResourceNotFoundException.class);
-//
-//        mockMvc.perform(put("/api/v1/deck/" + id)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(deckDetailDto)))
-//                .andExpect(status().isNotFound());
-//    }
 
     @Test
     void deleteDeck_Success() throws Exception {
