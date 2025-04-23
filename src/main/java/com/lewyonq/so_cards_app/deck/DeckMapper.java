@@ -7,7 +7,7 @@ import com.lewyonq.so_cards_app.deck.dto.DeckResponseDto;
 import com.lewyonq.so_cards_app.model.entity.Deck;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", uses = CardMapper.class)
+@Mapper(componentModel = "spring", uses = CardMapper.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface DeckMapper {
     Deck toEntity(DeckRequestDto dto);
     DeckResponseDto toResponseDto(Deck deck);

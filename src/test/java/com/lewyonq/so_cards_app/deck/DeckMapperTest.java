@@ -1,5 +1,6 @@
 package com.lewyonq.so_cards_app.deck;
 
+import com.lewyonq.so_cards_app.card.CardMapper;
 import com.lewyonq.so_cards_app.card.dto.CardResponseDto;
 import com.lewyonq.so_cards_app.deck.dto.DeckDetailDto;
 import com.lewyonq.so_cards_app.deck.dto.DeckRequestDto;
@@ -18,10 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DeckMapperTest {
     private DeckMapper deckMapper;
+    private CardMapper cardMapper;
 
     @BeforeEach
     void setUp() {
-        deckMapper = Mappers.getMapper(DeckMapper.class);
+        cardMapper = Mappers.getMapper(CardMapper.class);
+        deckMapper = new DeckMapperImpl(cardMapper);
     }
 
     @Test
