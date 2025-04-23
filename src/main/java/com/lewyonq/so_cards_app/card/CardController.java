@@ -3,6 +3,7 @@ package com.lewyonq.so_cards_app.card;
 import com.lewyonq.so_cards_app.card.dto.CardDetailDto;
 import com.lewyonq.so_cards_app.card.dto.CardRequestDto;
 import com.lewyonq.so_cards_app.exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,10 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping("/add-to-deck/{deckId}")
-    public ResponseEntity<CardDetailDto> createCard(@PathVariable Long deckId, @RequestBody CardRequestDto requestDto) {
+    public ResponseEntity<CardDetailDto> createCard(
+            @PathVariable Long deckId,
+            @Valid @RequestBody CardRequestDto requestDto
+    ) {
         log.debug("Entering createCard method");
 
         try {
@@ -51,7 +55,10 @@ public class CardController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CardDetailDto> updateCard(@PathVariable Long id, @RequestBody CardRequestDto requestDto) {
+    public ResponseEntity<CardDetailDto> updateCard(
+            @PathVariable Long id,
+            @Valid @RequestBody CardRequestDto requestDto
+    ) {
         log.debug("Entering updateCard method");
         try {
             CardDetailDto cardDetail = cardService.updateCard(id, requestDto);
