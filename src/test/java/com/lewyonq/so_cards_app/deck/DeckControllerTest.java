@@ -5,7 +5,6 @@ import com.lewyonq.so_cards_app.deck.dto.DeckDetailDto;
 import com.lewyonq.so_cards_app.deck.dto.DeckRequestDto;
 import com.lewyonq.so_cards_app.deck.dto.DeckResponseDto;
 import com.lewyonq.so_cards_app.exception.ResourceNotFoundException;
-import com.lewyonq.so_cards_app.model.entity.Deck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -26,8 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(DeckController.class)
 class DeckControllerTest {
     DeckRequestDto requestDto;
-    Deck deck;
-    Deck savedDeck;
     DeckDetailDto deckDetailDto;
     DeckResponseDto responseDto;
 
