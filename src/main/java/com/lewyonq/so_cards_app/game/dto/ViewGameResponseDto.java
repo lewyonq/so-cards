@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class GameResponseDto {
+public class ViewGameResponseDto {
     private Long gameId;
     private List<CardResponseDto> cardResponseDtos;
 }
