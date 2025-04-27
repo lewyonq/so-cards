@@ -1,12 +1,10 @@
 package com.lewyonq.so_cards_app.card.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 public class CardDetailDto {
     private Long id;
     private String question;

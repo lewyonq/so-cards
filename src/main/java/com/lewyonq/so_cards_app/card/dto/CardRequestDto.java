@@ -2,11 +2,9 @@ package com.lewyonq.so_cards_app.card.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class CardRequestDto {
     @NotBlank(message = "Card question cannot be blank")
     @Size(max = 250, message = "Card question cannot exceed 250 characters")

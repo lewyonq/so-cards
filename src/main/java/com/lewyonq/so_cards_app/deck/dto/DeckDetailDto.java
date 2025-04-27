@@ -1,14 +1,12 @@
 package com.lewyonq.so_cards_app.deck.dto;
 
 import com.lewyonq.so_cards_app.card.dto.CardResponseDto;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class DeckDetailDto {
     private Long id;
     private String name;

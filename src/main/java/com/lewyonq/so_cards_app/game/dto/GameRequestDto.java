@@ -4,11 +4,9 @@ import com.lewyonq.so_cards_app.model.enums.GameType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class GameRequestDto {
     @NotNull(message = "Deck id cannot be null")
     private Long deckId;

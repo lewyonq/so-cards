@@ -1,10 +1,8 @@
 package com.lewyonq.so_cards_app.deck.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class DeckResponseDto {
     private Long id;
     private String name;
