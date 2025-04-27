@@ -7,5 +7,5 @@ import java.util.List;
 @Data
 public class TestGameResponseDto {
     private Long gameId;
-    private List<TestQuestionDto> cardResponseDtos;
+    private List<TestQuestionDto> testQuestions;
 }

@@ -1,15 +1,22 @@
 package com.lewyonq.so_cards_app.game;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lewyonq.so_cards_app.ai.AIService;
 import com.lewyonq.so_cards_app.card.CardMapper;
 import com.lewyonq.so_cards_app.card.dto.CardResponseDto;
 import com.lewyonq.so_cards_app.deck.DeckRepository;
 import com.lewyonq.so_cards_app.exception.ResourceNotFoundException;
 import com.lewyonq.so_cards_app.game.dto.GameRequestDto;
-import com.lewyonq.so_cards_app.game.dto.GameResponseDto;
+import com.lewyonq.so_cards_app.game.dto.ViewGameResponseDto;
+import com.lewyonq.so_cards_app.game.dto.TestGameResponseDto;
+import com.lewyonq.so_cards_app.game.dto.TestQuestionDto;
 import com.lewyonq.so_cards_app.model.entity.Card;
 import com.lewyonq.so_cards_app.model.entity.Deck;
 import com.lewyonq.so_cards_app.model.entity.Game;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +25,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GameService {
     private final GameRepository gameRepository;
     private final DeckRepository deckRepository;
     private final CardMapper cardMapper;
+    private final AIService aiService;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public Game createGame(GameRequestDto gameRequestDto) {
@@ -39,7 +49,7 @@ public class GameService {
     }
 
     @Transactional
-    public void makeGameAsFinished(Long id) {
+    public void submitViewModeGame(Long id) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Game", id));
         if (game.getFinishedAt() != null) {
@@ -48,25 +58,46 @@ public class GameService {
         game.setFinishedAt(LocalDateTime.now());
     }
 
-    public GameResponseDto createViewModeGame(GameRequestDto gameRequestDto) {
+    public ViewGameResponseDto createViewModeGame(GameRequestDto gameRequestDto) {
         Game game = createGame(gameRequestDto);
         List<CardResponseDto> cardResponseDtos = game.getCards().stream()
                 .map(cardMapper::toResponseDto)
                 .toList();
 
-        GameResponseDto gameResponseDto = new GameResponseDto();
-        gameResponseDto.setGameId(game.getId());
-        gameResponseDto.setCardResponseDtos(cardResponseDtos);
+        ViewGameResponseDto viewGameResponseDto = new ViewGameResponseDto();
+        viewGameResponseDto.setGameId(game.getId());
+        viewGameResponseDto.setCardResponseDtos(cardResponseDtos);
 
-        return gameResponseDto;
+        return viewGameResponseDto;
     }
 
-    public GameResponseDto createTestModeGame(GameRequestDto gameRequestDto) {
-        return new GameResponseDto();
+    public TestGameResponseDto createTestModeGame(GameRequestDto gameRequestDto) {
+        Game game = createGame(gameRequestDto);
+        List<CardResponseDto> cardResponseDtos = game.getCards().stream()
+                .map(cardMapper::toResponseDto)
+                .toList();
+        List<TestQuestionDto> testQuestions = prepareTestQuestions(cardResponseDtos);
+
+        TestGameResponseDto testGameResponseDto = new TestGameResponseDto();
+        testGameResponseDto.setGameId(game.getId());
+        testGameResponseDto.setTestQuestions(testQuestions);
+
+        return testGameResponseDto;
     }
 
-    public GameResponseDto createAnswerModeGame(GameRequestDto gameRequestDto) {
-        return new GameResponseDto();
+    public ViewGameResponseDto createAnswerModeGame(GameRequestDto gameRequestDto) {
+        return new ViewGameResponseDto();
+    }
+
+    private List<TestQuestionDto> prepareTestQuestions(List<CardResponseDto> cardResponseDtos) {
+        try {
+            String jsonString = objectMapper.writeValueAsString(cardResponseDtos);
+            String prompt = aiService.getMultipleChoiceJsonPrompt(jsonString);
+            String response = aiService.chat(prompt);
+            return objectMapper.readValue(response, new TypeReference<List<TestQuestionDto>>(){});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Deck findDeckById(Long id) {
