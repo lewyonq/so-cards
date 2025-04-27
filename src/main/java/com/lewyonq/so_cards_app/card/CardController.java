@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +37,23 @@ public class CardController {
             log.info("Successfully created card with ID: {}. Returning HTTP 201 Created, location: {}",
                     cardDetailDto.getId(), location);
             return ResponseEntity.created(location).body(cardDetailDto);
+        } catch (ResourceNotFoundException e) {
+            log.warn("{}. Returning HTTP 404", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/multiple-add-to-deck/{deckId}")
+    public ResponseEntity<List<CardDetailDto>> createCards(
+            @PathVariable Long deckId,
+            @Valid @RequestBody List<CardRequestDto> requestDtos
+    ) {
+        log.debug("Entering createCards method");
+
+        try {
+            List<CardDetailDto> cardDetailDtos = cardService.createCards(deckId, requestDtos);
+            log.info("Successfully created cards. Returning HTTP 201 Created");
+            return ResponseEntity.ok(cardDetailDtos);
         } catch (ResourceNotFoundException e) {
             log.warn("{}. Returning HTTP 404", e.getMessage());
             return ResponseEntity.notFound().build();

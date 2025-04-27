@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,10 +27,28 @@ public class CardService {
         Deck deck = findDeckById(deckId);
         Card card = cardMapper.toEntity(requestDto);
         card.setDeck(deck);
+
         Card savedCard = cardRepository.save(card);
         log.info("Successfully created card with ID: {} to deck with ID: {}", savedCard.getId(), deck.getId());
 
         return cardMapper.toDetailDto(savedCard);
+    }
+
+    @Transactional
+    public List<CardDetailDto> createCards(Long deckId, List<CardRequestDto> requestDtos) {
+        log.debug("Attempting to create {} cards for deck ID: {}", requestDtos.size(), deckId);
+        Deck deck = findDeckById(deckId);
+        List<Card> cards = requestDtos.stream()
+                .map(cardMapper::toEntity)
+                .peek(card -> card.setDeck(deck))
+                .toList();
+
+        List<Card> savedCards = cardRepository.saveAll(cards);
+        log.info("Successfully created {} cards to deck with ID: {}", requestDtos.size(), deck.getId());
+
+        return savedCards.stream()
+                .map(cardMapper::toDetailDto)
+                .toList();
     }
 
     @Transactional
