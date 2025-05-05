@@ -73,10 +73,10 @@ public class GameService {
 
     public TestGameResponseDto createTestModeGame(GameRequestDto gameRequestDto) {
         Game game = createGame(gameRequestDto);
-        List<CardResponseDto> cardResponseDtos = game.getCards().stream()
+        List<CardResponseDto> cardDtos = game.getCards().stream()
                 .map(cardMapper::toResponseDto)
                 .toList();
-        List<TestQuestionDto> testQuestions = prepareTestQuestions(cardResponseDtos);
+        List<TestQuestionDto> testQuestions = prepareTestQuestions(cardDtos);
 
         TestGameResponseDto testGameResponseDto = new TestGameResponseDto();
         testGameResponseDto.setGameId(game.getId());
