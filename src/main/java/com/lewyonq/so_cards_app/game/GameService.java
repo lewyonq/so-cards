@@ -94,7 +94,12 @@ public class GameService {
             String jsonString = objectMapper.writeValueAsString(cardResponseDtos);
             String prompt = aiService.getMultipleChoiceJsonPrompt(jsonString);
             String response = aiService.chat(prompt);
-            return objectMapper.readValue(response, new TypeReference<List<TestQuestionDto>>(){});
+            List<TestQuestionDto> testQuestions =
+                    objectMapper.readValue(response, new TypeReference<List<TestQuestionDto>>(){});
+            for (TestQuestionDto testQuestion : testQuestions) {
+                Collections.shuffle(testQuestion.getAnswers());
+            }
+            return testQuestions;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
