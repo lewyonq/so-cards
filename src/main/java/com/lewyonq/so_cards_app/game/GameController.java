@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,11 +53,20 @@ public class GameController {
         }
     }
 
-    @PutMapping("/{id}/submit/view")
+    @PostMapping("/{id}/submit/view")
     public ResponseEntity<Void> submitViewModeGame(@PathVariable Long id) {
         try {
             gameService.submitViewModeGame(id);
             return ResponseEntity.noContent().build();
+        } catch (ResourceNotFoundException | IllegalStateException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{id}/submit/test")
+    public ResponseEntity<Integer> submitTestModeGame(@PathVariable Long id, @RequestBody List<Integer> answerIndexes) {
+        try {
+            return ResponseEntity.ok(gameService.submitTestModeGame(id, answerIndexes));
         } catch (ResourceNotFoundException | IllegalStateException e) {
             return ResponseEntity.notFound().build();
         }
