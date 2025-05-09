@@ -2,6 +2,7 @@ package com.lewyonq.so_cards_app.game;
 
 import com.lewyonq.so_cards_app.exception.ResourceNotFoundException;
 import com.lewyonq.so_cards_app.game.dto.GameRequestDto;
+import com.lewyonq.so_cards_app.game.dto.GameResultDto;
 import com.lewyonq.so_cards_app.game.dto.TestGameResponseDto;
 import com.lewyonq.so_cards_app.game.dto.ViewGameResponseDto;
 import jakarta.validation.Valid;
@@ -64,7 +65,7 @@ public class GameController {
     }
 
     @PostMapping("/{id}/submit/test")
-    public ResponseEntity<Integer> submitTestModeGame(@PathVariable Long id, @RequestBody List<Integer> answerIndexes) {
+    public ResponseEntity<GameResultDto> submitTestModeGame(@PathVariable Long id, @RequestBody List<Integer> answerIndexes) {
         try {
             return ResponseEntity.ok(gameService.submitTestModeGame(id, answerIndexes));
         } catch (ResourceNotFoundException | IllegalStateException e) {

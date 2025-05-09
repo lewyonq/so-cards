@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,22 +56,14 @@ public class GameService {
         List<CardResponseDto> cardResponseDtos = game.getCards().stream()
                 .map(cardMapper::toResponseDto)
                 .toList();
-
-        ViewGameResponseDto viewGameResponseDto = new ViewGameResponseDto();
-        viewGameResponseDto.setGameId(game.getId());
-        viewGameResponseDto.setCardResponseDtos(cardResponseDtos);
-
-        return viewGameResponseDto;
+        return new ViewGameResponseDto(game.getId(), cardResponseDtos);
     }
 
     @Transactional
-    public void submitViewModeGame(Long id) {
-        Game game = gameRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Game", id));
-        if (game.getFinishedAt() != null) {
-            throw new IllegalStateException("Game is already finished");
-        }
+    public void submitViewModeGame(Long gameId) {
+        Game game = findNotFinishedGameById(gameId);
         game.setFinishedAt(LocalDateTime.now());
+        game.setGameDurationInSeconds(Duration.between(game.getCreatedAt(), LocalDateTime.now()).getSeconds());
     }
 
     @Transactional
@@ -80,54 +73,30 @@ public class GameService {
                 .map(cardMapper::toResponseDto)
                 .toList();
         List<TestQuestionDto> testQuestions = prepareTestQuestions(cardDtos);
+        List<Integer> correctAnswerIndexes = getCorrectAnswerIndexes(testQuestions);
+        saveGameAsActive(game.getId(), correctAnswerIndexes);
+        game.setCreatedAt(LocalDateTime.now());
 
-        List<Integer> correctAnswerIds = testQuestions.stream()
-                .flatMapToInt(testQuestionDto -> IntStream.range(0, testQuestionDto.getAnswers().size())
-                        .filter(i -> testQuestionDto.getAnswers().get(i).getCorrect()))
-                .boxed()
-                .toList();
-
-        ActiveGame activeGame = ActiveGame.builder()
-                .gameId(game.getId())
-                .correctAnswerIndexes(correctAnswerIds)
-                .build();
-
-        activeGameRepository.save(activeGame);
-
-        TestGameResponseDto testGameResponseDto = new TestGameResponseDto();
-        testGameResponseDto.setGameId(game.getId());
-        testGameResponseDto.setTestQuestions(testQuestions);
-
-        return testGameResponseDto;
+        return new TestGameResponseDto(game.getId(), testQuestions);
     }
 
     @Transactional
-    public Integer submitTestModeGame(Long gameId, List<Integer> answerIndexes) {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new ResourceNotFoundException("Game", gameId));
-        int sum = 0;
+    public GameResultDto submitTestModeGame(Long gameId, List<Integer> answerIndexes) {
+        Game game = findNotFinishedGameById(gameId);
+        ActiveGame activeGame = findActiveGameByGameId(gameId);
 
-        if (game.getFinishedAt() != null) {
-            throw new IllegalStateException("Game is already finished");
-        }
+        int amountOfQuestions = activeGame.getCorrectAnswerIndexes().size();
+        int score = calculateScore(activeGame.getCorrectAnswerIndexes(), answerIndexes);
+        double scoreInPercent = Math.ceil(((double) score / amountOfQuestions) * 10000) / 100;
 
-        ActiveGame activeGame = activeGameRepository.findByGameId(gameId)
-                .orElseThrow(() -> new ResourceNotFoundException("Game with id: " + gameId + " is not active."));
-
-        for (int i = 0; i < activeGame.getCorrectAnswerIndexes().size(); i++) {
-            if (Objects.equals(activeGame.getCorrectAnswerIndexes().get(i), answerIndexes.get(i))) {
-                sum++;
-            }
-        }
-
+        updateGameStats(game, scoreInPercent);
         activeGameRepository.delete(activeGame);
-        game.setFinishedAt(LocalDateTime.now());
 
-        return sum;
+        return new GameResultDto(gameId, score, amountOfQuestions, scoreInPercent, game.getGameDurationInSeconds());
     }
 
     public ViewGameResponseDto createAnswerModeGame(GameRequestDto gameRequestDto) {
-        return new ViewGameResponseDto();
+        return null;
     }
 
     private List<TestQuestionDto> prepareTestQuestions(List<CardResponseDto> cardResponseDtos) {
@@ -144,6 +113,58 @@ public class GameService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<Integer> getCorrectAnswerIndexes(List<TestQuestionDto> testQuestionDtos) {
+        return testQuestionDtos.stream()
+                .flatMapToInt(testQuestionDto -> IntStream.range(0, testQuestionDto.getAnswers().size())
+                        .filter(i -> testQuestionDto.getAnswers().get(i).getCorrect()))
+                .boxed()
+                .toList();
+    }
+
+    private void saveGameAsActive(Long gameId, List<Integer> correctAnswerIndexes) {
+        ActiveGame activeGame = ActiveGame.builder()
+                .gameId(gameId)
+                .correctAnswerIndexes(correctAnswerIndexes)
+                .build();
+
+        activeGameRepository.save(activeGame);
+    }
+
+    private Game findNotFinishedGameById(Long gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game", gameId));
+        if (game.getFinishedAt() != null) {
+            throw new IllegalStateException("Game is already finished");
+        }
+
+        return game;
+    }
+
+    private void updateGameStats(Game game, double scoreInPercent) {
+        LocalDateTime gameFinishedTime = LocalDateTime.now();
+        Duration duration = Duration.between(game.getCreatedAt(), gameFinishedTime);
+
+        game.setFinishedAt(gameFinishedTime);
+        game.setGameDurationInSeconds(duration.getSeconds());
+        game.setScore(scoreInPercent);
+    }
+
+    private ActiveGame findActiveGameByGameId(Long gameId) {
+        return activeGameRepository.findByGameId(gameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game with id: " + gameId + " is not active."));
+    }
+
+    private int calculateScore(List<Integer> correctAnswerIndexes, List<Integer> givenAnswerIndexes) {
+        int score = 0;
+        for (int i = 0; i < correctAnswerIndexes.size(); i++) {
+            if (Objects.equals(correctAnswerIndexes.get(i), givenAnswerIndexes.get(i))) {
+                score++;
+            }
+        }
+
+        return score;
     }
 
     private Deck findDeckById(Long id) {
