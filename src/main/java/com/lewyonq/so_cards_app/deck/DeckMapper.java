@@ -10,6 +10,8 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", uses = CardMapper.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface DeckMapper {
     Deck toEntity(DeckRequestDto dto);
+
+    @Mapping(target = "cardCount", expression = "java(deck.getCards() != null ? deck.getCards().size() : 0)")
     DeckResponseDto toResponseDto(Deck deck);
 
     @Mapping(source = "cards", target = "cardDtos")

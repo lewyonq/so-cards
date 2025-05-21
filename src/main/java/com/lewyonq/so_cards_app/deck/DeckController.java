@@ -19,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/deck")
 @Slf4j
+@CrossOrigin("http://localhost:4200")
 public class DeckController {
     private final DeckService deckService;
 

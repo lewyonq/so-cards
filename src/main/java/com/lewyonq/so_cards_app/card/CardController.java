@@ -17,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/card")
 @Slf4j
+@CrossOrigin("http://localhost:4200")
 public class CardController {
     private final CardService cardService;
 

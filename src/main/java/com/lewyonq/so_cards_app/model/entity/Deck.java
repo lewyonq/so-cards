@@ -36,6 +36,8 @@ public class Deck {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    private LocalDateTime lastStudied;
+
     @ToString.Exclude
     @OneToMany(
             mappedBy = "deck",

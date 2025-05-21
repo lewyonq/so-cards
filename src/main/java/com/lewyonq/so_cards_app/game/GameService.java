@@ -41,7 +41,9 @@ public class GameService {
     @Transactional
     public Game createGame(GameRequestDto gameRequestDto) {
         Deck deck = findDeckById(gameRequestDto.getDeckId());
-        List<Card> gameCards = prepareShuffledLimitedCards(gameRequestDto.getCardsLimit(), deck.getCards());
+        List<Card> gameCards =
+
+                prepareShuffledLimitedCards(gameRequestDto.getCardsLimit(), deck.getCards());
         Game game = Game.builder()
                 .gameType(gameRequestDto.getGameType())
                 .deck(deck)
@@ -64,6 +66,7 @@ public class GameService {
         Game game = findNotFinishedGameById(gameId);
         game.setFinishedAt(LocalDateTime.now());
         game.setGameDurationInSeconds(Duration.between(game.getCreatedAt(), LocalDateTime.now()).getSeconds());
+        game.getDeck().setLastStudied(LocalDateTime.now());
     }
 
     @Transactional
@@ -90,6 +93,7 @@ public class GameService {
         double scoreInPercent = Math.ceil(((double) score / amountOfQuestions) * 10000) / 100;
 
         updateGameStats(game, scoreInPercent);
+        game.getDeck().setLastStudied(LocalDateTime.now());
         activeGameRepository.delete(activeGame);
 
         return new GameResultDto(gameId, score, amountOfQuestions, scoreInPercent, game.getGameDurationInSeconds());
